@@ -108,8 +108,8 @@ contract Marketplace {
         _house.purchased = false;
         //Remove Previous rentee
         _house.rentee = address(0x0);
-        //test
-        houses[_id] = House(productCount, _house.name, _house.price, _house.bhk, _house.location, _house.owner, _house.rentee,false);
+        //update product
+        houses[_id] = _house;
         //Trigger an Event
         emit HouseReturned(productCount, _house.name, _house.price, _house.bhk, _house.location, _house.owner, _house.rentee, false);
     }
