@@ -100,7 +100,7 @@ contract Marketplace {
     }
 
     //allow house owner to mark house as returned.
-    function returnHouse(uint _id) public returns (bool) {
+    function returnHouse(uint _id) public{
          //Fetch the product
         House memory _house = houses[_id];
         require(_house.owner == msg.sender);
@@ -108,10 +108,10 @@ contract Marketplace {
         _house.purchased = false;
         //Remove Previous rentee
         _house.rentee = address(0x0);
+        //test
+        houses[_id] = House(productCount, _house.name, _house.price, _house.bhk, _house.location, _house.owner, _house.rentee,false);
         //Trigger an Event
         emit HouseReturned(productCount, _house.name, _house.price, _house.bhk, _house.location, _house.owner, _house.rentee, false);
-        //Return Success
-        return true;
     }
 
 }

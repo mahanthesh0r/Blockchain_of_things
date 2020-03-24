@@ -1,7 +1,10 @@
 import React, { Component } from 'react';
-import logo from '../logo.png';
 import './App.css';
 import Web3 from 'web3'
+import Marketplace from '../abis/Marketplace.json'
+import Navbar from './Navbar'
+import Jumbotron from './Jumbotron'
+import Main from './Main'
 
 
 class App extends Component {
@@ -29,58 +32,80 @@ class App extends Component {
     //Load account
     const accounts = await web3.eth.getAccounts()
     this.setState({ account: accounts[0] })
+    const networkID = await web3.eth.net.getId()
+    const networkData = Marketplace.networks[networkID]
+    if (networkData) {
+      const marketplace = web3.eth.Contract(Marketplace.abi, networkData.address)
+      const productCount = await marketplace.methods.productCount().call()
+      this.setState({productCount})
+      //Load products
+      for(var i =1; i <= productCount; i++){
+        const product = await marketplace.methods.houses(i).call()
+        this.setState({
+          products: [...this.state.products,product]
+        })
+      }
+      console.log(productCount.toString())
+      console.log(this.state.products)
+      
+      this.setState({ marketplace })
+      this.setState({ loading: false })
+    } else {
+      window.alert('Marketplace contract not deployed to detected network.')
+    }
   }
 
   constructor(props) {
     super(props)
     this.state = {
-      account: ''
+      account: '',
+      productCount: 0,
+      products: [],
+      loading: true
     }
+    this.createHouse = this.createHouse.bind(this)
+    this.rentHouse = this.rentHouse.bind(this)
+    this.returnHouse = this.returnHouse.bind(this)
   }
+
+  createHouse(name,price,bhk,location) {
+    this.setState({loading:true})
+    this.state.marketplace.methods.createHouse(name,price,bhk,location).send({from: this.state.account})
+    .once('receipt', (receipt) => {
+      this.setState({loading:false})
+    })
+  }
+
+  rentHouse(id,price) {
+    this.setState({loading:true})
+    this.state.marketplace.methods.rentHouse(id).send({from: this.state.account, value: price})
+    .once('receipt', (receipt) => {
+      this.setState({loading:false})
+    })
+  }
+
+  returnHouse(id) {
+    this.setState({loading:true})
+    this.state.marketplace.methods.returnHouse(id).send({from: this.state.account})
+    .once('receipt', (receipt) => {
+      this.setState({loading:false})
+    })
+  }
+  
 
 
   render() {
     return (
       <div>
-        <nav className="navbar navbar-dark fixed-top bg-primary flex-md-nowrap p-0 shadow">
-          <a
-            className="navbar-brand col-sm-3 col-md-2 mr-0"
-            href="http://www.dappuniversity.com/bootcamp"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Mahanthesh
-          </a>
-          
-
-        </nav>
-        <div className="container-fluid mt-5">
-          <div className="row">
-            <main role="main" className="col-lg-12 d-flex text-center">
-              <div className="content mr-auto ml-auto">
-                <a
-                  href="http://www.dappuniversity.com/bootcamp"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <img src={logo} className="App-logo" alt="logo" />
-                </a>
-                <h1>Dapp University Starter Kit</h1>
-                <p>
-                  Edit <code>src/components/App.js</code> and save to reload.
-                </p>
-                <a
-                  className="App-link"
-                  href="http://www.dappuniversity.com/bootcamp"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  LEARN BLOCKCHAIN <u><b>NOW! </b></u>
-                </a>
-              </div>
-            </main>
-          </div>
-        </div>
+        <Navbar account={this.state.account} />
+       <Jumbotron createHouse={this.createHouse}/>
+       {this.state.loading ? <div id="loading" className="text-center"><p className="text-center">Loading...</p> </div>
+       :<Main products={this.state.products}  
+              rentHouse={this.rentHouse}  
+              returnHouse={this.returnHouse} 
+              account={this.state.account} 
+               /> }
+       
       </div>
     );
   }
