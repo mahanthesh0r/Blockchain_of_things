@@ -66,6 +66,7 @@ class App extends Component {
     this.createHouse = this.createHouse.bind(this)
     this.rentHouse = this.rentHouse.bind(this)
     this.returnHouse = this.returnHouse.bind(this)
+    //this.verifyOwnership = this.verifyOwnership.bind(this)
   }
 
   createHouse(name,price,bhk,location) {
@@ -91,6 +92,11 @@ class App extends Component {
       this.setState({loading:false})
     })
   }
+
+  // verifyOwnership(id,rentee){
+  //   var verify = this.state.marketplace.methods.verifyOwnership(id,rentee).send({from: this.state.account})
+  //   console.log(verify);
+  // }
   
 
 
@@ -104,6 +110,7 @@ class App extends Component {
               rentHouse={this.rentHouse}  
               returnHouse={this.returnHouse} 
               account={this.state.account} 
+             // verifyOwnership = {this.verifyOwnership}
                /> }
        
       </div>

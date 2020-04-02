@@ -114,4 +114,16 @@ contract Marketplace {
         emit HouseReturned(productCount, _house.name, _house.price, _house.bhk, _house.location, _house.owner, _house.rentee, false);
     }
 
+    // function verifyOwnership(uint _id, address _rentee) public view returns(bool){
+    //     //Fetch the product 
+    //     House memory _house = houses[_id];
+    //     require(_house.rentee == _rentee);
+    //     //check if the house is purchased and the _rentee is same as the _house.rentee
+    //     if(_house.purchased == true && _house.rentee == _rentee){
+    //         return true;
+    //     }else {
+    //         return false;
+    //     }
+    // }
+
 }

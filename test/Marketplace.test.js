@@ -26,11 +26,12 @@ contract('Marketplace', ([deployer,seller,buyer]) => {
     })
 
     describe('houses', async () => {
-        let results, productCount
+        let results, productCount,addresss
 
          before(async () => {
             results = await marketplace.createHouse('ABC House',web3.utils.toWei('1','Ether'),'2BHK','HSR Layout', {from: seller})
             productCount = await marketplace.productCount()
+            addresss = await marketplace.address
         })
         
         it('creates houses', async () => {
@@ -134,6 +135,21 @@ contract('Marketplace', ([deployer,seller,buyer]) => {
  
          })
 
+    //      //VerifyOwnerShip
+    //      it('verify Owner', async () => {
+            
+    //     //SUCCESS:Verify the rentee
+    //     const data = await marketplace.verifyOwnership(productCount,addresss, {from: buyer})
+    //     const eventData = data.logs[0].args
+    //     console.log(eventData)
+    //    assert.equal(eventData.rentee,buyer,'buyer is correct')
+    //    assert.equal(eventData.purchased,true,'purchased is correct')
+
+
+    //  })
+
+
     })
 
+    
 })
