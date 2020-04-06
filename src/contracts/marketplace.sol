@@ -3,6 +3,7 @@ pragma solidity ^0.5.0;
 contract Marketplace {
     string public name;
     uint public productCount = 0;
+    string ipfsHash;
     mapping(uint => House) public houses;
 
     struct House {
@@ -125,5 +126,15 @@ contract Marketplace {
     //         return false;
     //     }
     // }
+
+    function sendHash(string memory x) public {
+        ipfsHash = x; 
+    }
+
+    function getHash() public view returns (string memory x) {
+   return ipfsHash;
+    }
+
+
 
 }
