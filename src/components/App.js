@@ -8,6 +8,7 @@ import Main from './Main'
 import ipfs from './ipfs';
 
 
+
 class App extends Component {
 
   async componentDidMount(){
@@ -69,24 +70,43 @@ class App extends Component {
       products: [],
       loading: true,
       //ipfs
-      ipfsHash:null,
+      transactionHash: '',
       buffer:'',
       ethAddress:'',
       blockNumber:'',
-      transactionHash:'',
       gasUsed:'',
       txReceipt: ''   
+      
     }
-
-    this.captureFile = this.captureFile.bind(this);
-    this.onSub= this.onSub.bind(this);
-   
 
     this.createHouse = this.createHouse.bind(this)
     this.rentHouse = this.rentHouse.bind(this)
     this.returnHouse = this.returnHouse.bind(this)
-    //this.verifyOwnership = this.verifyOwnership.bind(this)
+    this.sendHash = this.sendHash.bind(this)
   }
+
+  onGetReceipt = async () => {
+    const web3 = window.web3
+    try{
+        this.setState({blockNumber:"waiting.."});
+        this.setState({gasUsed:"waiting..."});
+        console.log(this.state.blockNumber)
+
+        // get Transaction Receipt in console on click
+        // See: https://web3js.readthedocs.io/en/1.0/web3-eth.html#gettransactionreceipt
+        await web3.eth.getTransactionReceipt(this.state.transactionHash, (err, txReceipt)=>{
+          console.log(err,txReceipt);
+          this.setState({txReceipt});
+        }); //await for getTransactionReceipt
+
+        await this.setState({blockNumber: this.state.txReceipt.blockNumber});
+        await this.setState({gasUsed: this.state.txReceipt.gasUsed});   
+        console.log(this.state.blockNumber) 
+      } //try
+    catch(error){
+        console.log(error);
+      } //catch
+  } //onClick
 
   createHouse(name,price,bhk,location) {
     this.setState({loading:true})
@@ -112,98 +132,12 @@ class App extends Component {
     })
   }
 
-  // verifyOwnership(id,rentee){
-  //   var verify = this.state.marketplace.methods.verifyOwnership(id,rentee).send({from: this.state.account})
-  //   console.log(verify);
-  // }
-
-
-  captureFile(event){
-    event.stopPropagation()
-    event.preventDefault()
-    const file = event.target.files[0]
-    let reader = new window.FileReader()
-    reader.readAsArrayBuffer(file)
-    reader.onloadend = () => {
-      this.setState({buffer:Buffer(reader.result)})
-      console.log('buffer',this.state.buffer)
-    }
-  };
-
-
-  onGetReceipt = async () => {
-
-    try{
-        this.setState({blockNumber:"waiting.."});
-        this.setState({gasUsed:"waiting..."});
-
-        // get Transaction Receipt in console on click
-        // See: https://web3js.readthedocs.io/en/1.0/web3-eth.html#gettransactionreceipt
-        await Web3.eth.getTransactionReceipt(this.state.transactionHash, (err, txReceipt)=>{
-          console.log(err,txReceipt);
-          this.setState({txReceipt});
-        }); //await for getTransactionReceipt
-
-        await this.setState({blockNumber: this.state.txReceipt.blockNumber});
-        await this.setState({gasUsed: this.state.txReceipt.gasUsed});   
-        console.log(this.state.blockNumber) 
-      } //try
-    catch(error){
-        console.log(error);
-      } //catch
-  } //onClick
-
-  onSub = async(event) => {
-   if(event) event.preventDefault();
-    console.log("0nSub called")
-
-    //bring in user's metamask account address
-  // const accounts = await web3.eth.getAccounts();
-   
-    console.log('Sending from Metamask account: ' + this.state.account);
-
-    //obtain contract address from storehash.js
-    //const ethAddress= await storehash.options.address;
-    //this.setState({ethAddress});
-
-    //save document to IPFS,return its hash#, and set hash# to state
-    //https://github.com/ipfs/interface-ipfs-core/blob/master/SPEC/FILES.md#add 
-    for await (const file of ipfs.add(this.state.buffer)) {
-      console.log(file.path)
-    }
-    
-  //   ipfs.add("this.state.buffer",(error,result) => {
-  //   if(error){
-  //     console.error(error)
-  //     return
-  //   }
-    
-  //   this.setState({ ipfsHash: result[0].hash})
-  //   return console.log('ipfsHash',this.state.ipfsHash)
-  //  })
-     
-      
-      //setState by setting ipfsHash to ipfsHash[0].hash 
-      
-
-      // call Ethereum contract method "sendHash" and .send IPFS hash to etheruem contract 
-      //return the transaction hash from the ethereum contract
-      //see, this https://web3js.readthedocs.io/en/1.0/web3-eth-contract.html#methods-mymethod-send
-      
-      /*storehash.methods.sendHash(this.state.ipfsHash).send({
-        from: accounts[0] 
-      }, (error, transactionHash) => {
-        console.log(transactionHash);
-        this.setState({transactionHash});
-      }); //storehash */ 
-      
-     //await ipfs.add
-    
-  }; //onSubmit 
-
-  
-
-
+  sendHash(ipfsHash){
+    this.state.marketplace.methods.sendHash(ipfsHash).send({from: this.state.account}, (error, transactionHash) => {
+                 console.log(transactionHash);
+                 this.setState({transactionHash});
+               }); 
+  }
   render() {
     return (
       <div>
@@ -214,23 +148,13 @@ class App extends Component {
               rentHouse={this.rentHouse}  
               returnHouse={this.returnHouse} 
               account={this.state.account} 
+              sendHash={this.sendHash}
+              transactionHash={this.state.transactionHash}
+              onGetReceipt={this.onGetReceipt}
              // verifyOwnership = {this.verifyOwnership}
                /> }
                
-               <h3> Choose file to send to IPFS </h3>
-          <form onSubmit={this.onSub}>
-            <input 
-              type = "file"
-              onChange = {this.captureFile}
-            />
-             <button 
-             bsstyle="primary" 
-             type="submit"> 
-             Send it 
-             </button>
-          </form>
-          <hr/>
-            <button onClick = {this.onGetReceipt}> Get Transaction Receipt </button>
+              
       </div>
     );
   }

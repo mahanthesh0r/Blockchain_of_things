@@ -3,7 +3,7 @@ pragma solidity ^0.5.0;
 contract Marketplace {
     string public name;
     uint public productCount = 0;
-    string ipfsHash;
+    string public ipfsHash;
     mapping(uint => House) public houses;
 
     struct House {
@@ -15,6 +15,7 @@ contract Marketplace {
         address payable owner;
         address payable rentee;
         bool purchased;
+        string[] DocHash;
     }
 
     event HouseCreated(
@@ -127,8 +128,25 @@ contract Marketplace {
     //     }
     // }
 
-    function sendHash(string memory x) public {
+    function sendHash(uint _id,string memory x) public {
         ipfsHash = x; 
+        //Fetch the product
+        House memory _house = houses[_id];
+        //Fetch Owner
+        address _seller = _house.owner;
+        //Fetch the rentee
+        address rentee = _house.rentee;
+        //Make sure the product is valid with valid id
+        require(_house.id > 0 && _house.id <= productCount);
+        //Require that house has not been rented already
+        require(_house.purchased);
+        //Require that the buyer is not the seller
+        require(_seller != msg.sender);
+        //Store the IPFS Hash value 
+        _house.DocHash[rentee] = ipfsHash;
+        //Update the product
+        houses[_id] = _house;
+
     }
 
     function getHash() public view returns (string memory x) {
