@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import QRCode from 'qrcode'
 import ipfs from './ipfs';
 import {Button,ButtonToolbar} from 'react-bootstrap';
 import ReceiptModal from './ReceiptModal';
@@ -12,8 +11,7 @@ class Main extends Component {
         this.state = {
             addModalShow:false,
             //ipfs
-             ipfsHash: null,
-             transHash: this.props.transactionHash
+             ipfsHash: null
              
      
      }
@@ -21,17 +19,7 @@ class Main extends Component {
     this.onSub= this.onSub.bind(this);
     }
 
-    generateQR(_id) {
-        let payload = JSON.stringify({
-            id: _id,
-            rentee: this.props.account.toString()
-        });
-        console.log(payload)
-        QRCode.toCanvas(document.getElementById('canvas'), payload, function(error) {
-        if (error) console.error(error)
-        //console.log('success!')
-        })  
-        }
+    
 
         captureFile(event){
             event.stopPropagation()
@@ -69,9 +57,7 @@ class Main extends Component {
             <main role="main" className="flex-shrink-0">
                 <div className="container">
                     <h1 className="mt-5">RENT HOUSE</h1>
-                    <div align="center">
-                         <canvas id="canvas" align="center" />
-                         </div>
+                   
                      <div className="row">
                     {this.props.products.map((product, key) => {
                         return (
@@ -88,14 +74,7 @@ class Main extends Component {
                              <p className="card-text"><b>Rentee:</b> {product.rentee}</p>
                              {(product.purchased) && (this.props.account === product.rentee)
                          ? <div>
-                             <button
-                         name={product.id} 
-                         address={product.rentee}
-                         type="button" 
-                         className="btn btn-sm btn-outline-primary" 
-                         onClick={(event) => {this.generateQR(event.target.name)}}>
-                         SHOW QR CODE
-                  </button>
+                             
                   <hr/>
                   <h3> Upload your Aadhaar card </h3>
           <form onSubmit={this.onSub}>
@@ -115,16 +94,18 @@ class Main extends Component {
            <ButtonToolbar>
                <Button 
                variant='primary'
-               onClick={() =>{ this.props.onGetReceipt(); this.setState({addModalShow:true});}}>Get Receipt</Button>
+               onClick={(event) =>{ this.props.onGetReceipt(); this.setState({addModalShow:true});}}>Get Receipt</Button>
                <ReceiptModal 
                show={this.state.addModalShow}
                onHide={addModalClose}
+               id={product.id}
                trans={this.props.transactionHash}
                block_no={this.props.blockNumber}
                block_hash={this.props.blockHash}
                from={this.props.from}
                to={this.props.to}
                gas_used={this.props.gasUsed}
+               ipfs_hash={this.state.ipfsHash}
                
                />
            </ButtonToolbar>
