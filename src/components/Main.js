@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import QRCode from 'qrcode'
 import ipfs from './ipfs';
+import {Button,ButtonToolbar} from 'react-bootstrap';
+import ReceiptModal from './ReceiptModal';
 
 
 class Main extends Component {
@@ -8,8 +10,11 @@ class Main extends Component {
     constructor(props){
         super(props)
         this.state = {
-     //ipfs
-      ipfsHash: null,
+            addModalShow:false,
+            //ipfs
+             ipfsHash: null,
+             transHash: this.props.transactionHash
+             
      
      }
     this.captureFile = this.captureFile.bind(this);
@@ -47,9 +52,6 @@ class Main extends Component {
             
              console.log('Sending from Metamask account: ' + this.props.account);
          
-             //obtain contract address from storehash.js
-             //const ethAddress= await storehash.options.address;
-             //this.setState({ethAddress});
          
              //save document to IPFS,return its hash#, and set hash# to state
              //https://github.com/ipfs/js-ipfs/tree/master/packages/ipfs-http-client
@@ -62,6 +64,7 @@ class Main extends Component {
 
 
     render() {
+        let addModalClose =() => this.setState({addModalShow:false})
         return (
             <main role="main" className="flex-shrink-0">
                 <div className="container">
@@ -88,7 +91,6 @@ class Main extends Component {
                              <button
                          name={product.id} 
                          address={product.rentee}
-                         
                          type="button" 
                          className="btn btn-sm btn-outline-primary" 
                          onClick={(event) => {this.generateQR(event.target.name)}}>
@@ -101,7 +103,8 @@ class Main extends Component {
               type = "file"
               onChange = {this.captureFile}
             />
-            <p>  </p>
+            
+            <p> </p>
              <button 
              className="btn btn-sm btn-outline-primary"  
              type="submit">
@@ -109,8 +112,22 @@ class Main extends Component {
              </button>
           </form>
           <hr/>
-            <button type="button" onClick={(event) => {this.props.onGetReceipt()}}> Get Transaction Receipt </button>
-            
+           <ButtonToolbar>
+               <Button 
+               variant='primary'
+               onClick={() =>{ this.props.onGetReceipt(); this.setState({addModalShow:true});}}>Get Receipt</Button>
+               <ReceiptModal 
+               show={this.state.addModalShow}
+               onHide={addModalClose}
+               trans={this.props.transactionHash}
+               block_no={this.props.blockNumber}
+               block_hash={this.props.blockHash}
+               from={this.props.from}
+               to={this.props.to}
+               gas_used={this.props.gasUsed}
+               
+               />
+           </ButtonToolbar>
                   </div>
                          : null
                      }

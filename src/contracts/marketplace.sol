@@ -4,6 +4,7 @@ contract Marketplace {
     string public name;
     uint public productCount = 0;
     string public ipfsHash;
+    uint public index = 0;
     mapping(uint => House) public houses;
 
     struct House {
@@ -16,6 +17,7 @@ contract Marketplace {
         address payable rentee;
         bool purchased;
         string[] DocHash;
+        address[] allRentee;
     }
 
     event HouseCreated(
@@ -90,10 +92,13 @@ contract Marketplace {
        _house.rentee = msg.sender;
         //Mark as purchased
         _house.purchased = true;
+        //Add the rentee address to allRentee Array
+        _house.allRentee[index] = _house.rentee;
         //update the product
         houses[_id] = _house;
         //Pay the seller by sending them ether
         address(_seller).transfer(msg.value);
+        
         //Trigger Event
        //  emit HouseRented(productCount, _house.name, _house.price, _house.bhk, _house.location, msg.sender,_house.rentee, true);
        emit HouseRented(productCount, _house.name, _house.price, _house.bhk, _house.location, _house.owner, _house.rentee, true);
@@ -116,17 +121,6 @@ contract Marketplace {
         emit HouseReturned(productCount, _house.name, _house.price, _house.bhk, _house.location, _house.owner, _house.rentee, false);
     }
 
-    // function verifyOwnership(uint _id, address _rentee) public view returns(bool){
-    //     //Fetch the product 
-    //     House memory _house = houses[_id];
-    //     require(_house.rentee == _rentee);
-    //     //check if the house is purchased and the _rentee is same as the _house.rentee
-    //     if(_house.purchased == true && _house.rentee == _rentee){
-    //         return true;
-    //     }else {
-    //         return false;
-    //     }
-    // }
 
     function sendHash(uint _id,string memory x) public {
         ipfsHash = x; 
@@ -138,19 +132,22 @@ contract Marketplace {
         address rentee = _house.rentee;
         //Make sure the product is valid with valid id
         require(_house.id > 0 && _house.id <= productCount);
-        //Require that house has not been rented already
+        //Require that house has  been rented
         require(_house.purchased);
         //Require that the buyer is not the seller
         require(_seller != msg.sender);
+        if(_house.allRentee[index] == msg.sender){
         //Store the IPFS Hash value 
-        _house.DocHash[rentee] = ipfsHash;
+        _house.DocHash[index] = ipfsHash;
+        index++;
+        } 
         //Update the product
         houses[_id] = _house;
 
     }
 
     function getHash() public view returns (string memory x) {
-   return ipfsHash;
+    return ipfsHash;
     }
 
 

@@ -5,15 +5,14 @@ import Marketplace from '../abis/Marketplace.json'
 import Navbar from './Navbar'
 import Jumbotron from './Jumbotron'
 import Main from './Main'
-import ipfs from './ipfs';
+
+
 
 
 
 class App extends Component {
 
-  async componentDidMount(){
-    console.log(ipfs.id())
-  }
+  
 
   async componentWillMount() {
     await this.loadWeb3()
@@ -75,6 +74,9 @@ class App extends Component {
       ethAddress:'',
       blockNumber:'',
       gasUsed:'',
+      from:'',
+      to:'',
+      blockHash:'',
       txReceipt: ''   
       
     }
@@ -90,6 +92,9 @@ class App extends Component {
     try{
         this.setState({blockNumber:"waiting.."});
         this.setState({gasUsed:"waiting..."});
+        this.setState({blockHash: "waiting.."});
+        this.setState({from: "waiting.."});
+        this.setState({to: "waiting..."});
         console.log(this.state.blockNumber)
 
         // get Transaction Receipt in console on click
@@ -100,7 +105,10 @@ class App extends Component {
         }); //await for getTransactionReceipt
 
         await this.setState({blockNumber: this.state.txReceipt.blockNumber});
-        await this.setState({gasUsed: this.state.txReceipt.gasUsed});   
+        await this.setState({gasUsed: this.state.txReceipt.gasUsed});  
+        await this.setState({blockHash: this.state.txReceipt.blockHash});
+        await this.setState({from: this.state.txReceipt.from});
+        await this.setState({to: this.state.txReceipt.to});
         console.log(this.state.blockNumber) 
       } //try
     catch(error){
@@ -150,8 +158,13 @@ class App extends Component {
               account={this.state.account} 
               sendHash={this.sendHash}
               transactionHash={this.state.transactionHash}
+              blockNumber={this.state.blockNumber}
+              blockHash={this.state.blockHash}
+              gasUsed={this.state.gasUsed}
+              from={this.state.from}
+              to={this.state.to}
               onGetReceipt={this.onGetReceipt}
-             // verifyOwnership = {this.verifyOwnership}
+             
                /> }
                
               
