@@ -51,7 +51,6 @@ import QRCode from 'qrcode'
            </div>
       </Modal.Body>
       <Modal.Footer>
-        <Button onClick={this.props.onHide}>Close</Button>
         <button
                          id={this.props.id} 
                          type="button" 
@@ -59,6 +58,7 @@ import QRCode from 'qrcode'
                          onClick={(event) => {this.generateQR(event.target.id,this.props.ipfs_hash,this.props.trans,this.props.from)}}>
                          SHOW QR CODE
                   </button>
+                  <Button variant="danger" onClick={this.props.onHide}>Close</Button>
       </Modal.Footer>
     </Modal>
         )

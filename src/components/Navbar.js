@@ -10,7 +10,7 @@ class Navbar extends Component {
                     target="_blank"
                     rel="noopener noreferrer"
                 >
-                    Mahanthesh
+                    RENT BLOCK
         </a>
                 <ul className="navbar-nav px-3">
                     <li className="nav-item-nowrap d-none d-sm-none d-sm-block">

@@ -95,7 +95,7 @@ class App extends Component {
         this.setState({blockHash: "waiting.."});
         this.setState({from: "waiting.."});
         this.setState({to: "waiting..."});
-        console.log(this.state.blockNumber)
+       // console.log(this.state.blockNumber)
 
         // get Transaction Receipt in console on click
         // See: https://web3js.readthedocs.io/en/1.0/web3-eth.html#gettransactionreceipt
