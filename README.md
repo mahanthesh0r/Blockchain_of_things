@@ -33,6 +33,14 @@
 
 3. #### Install all npm packages
     ``` $ npm install ```
+
+4. #### Start Ganache and make sure a your connected to your local workspace
+
+5. #### Run IPFS Daemon
+    ``` $ ipfs daemon ```
+
+6. #### Run your react client **make sure you're in your project directory** 
+    ``` $ npm run start ```
     
  ***   
 #### Please Give This Project A Star :star:
