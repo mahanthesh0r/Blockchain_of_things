@@ -22,7 +22,7 @@ class Jumbotron extends Component {
                                 <input type="text" ref={(input) => {this.houseName = input}} className="form-control" id="name" aria-describedby="emailHelp" placeholder="Enter Name" />
                             </div>
                             <div className="form-group">
-                                <label >Price</label>
+                                <label >Price Per Day</label>
                                 <input type="number" ref={(input) => {this.housePrice = input}} className="form-control" id="price" aria-describedby="emailHelp" placeholder="Enter Price" />
                             </div>
                             <div className="form-group">

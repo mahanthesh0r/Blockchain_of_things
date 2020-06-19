@@ -11,12 +11,38 @@ class Main extends Component {
         this.state = {
             addModalShow:false,
             //ipfs
-             ipfsHash: null
+             ipfsHash: null,
+             productID: null,
+             NumOfDays: 1
              
      
      }
     this.captureFile = this.captureFile.bind(this);
     this.onSub= this.onSub.bind(this);
+    this.doDecrement = this.doDecrement.bind(this);
+    this.doIncrement = this.doIncrement.bind(this);
+    }
+
+    doDecrement(event){
+        event.preventDefault()
+        if(this.state.NumOfDays > 1){
+            this.setState({ NumOfDays: this.state.NumOfDays -1});
+        } else {
+            this.setState({NumOfDays: 1});
+        }
+    }
+
+    doIncrement(event){
+        event.preventDefault()
+        if(this.state.NumOfDays){
+            this.setState({NumOfDays: this.state.NumOfDays + 1})
+        } else {
+            this.setState({NumOfDays: 1});
+        }
+    }
+
+    handleChange(event){
+        this.setState({NumOfDays: event.target.value})
     }
 
     
@@ -39,6 +65,7 @@ class Main extends Component {
                 // const accounts = await web3.eth.getAccounts();
             
              console.log('Sending from Metamask account: ' + this.props.account);
+             console.log(this.state.productID)
          
          
              //save document to IPFS,return its hash#, and set hash# to state
@@ -47,7 +74,7 @@ class Main extends Component {
                  this.setState({ipfsHash: file.path})
                console.log(this.state.ipfsHash)
              }
-             this.props.sendHash(this.state.ipfsHash)
+             this.props.sendHash(this.state.productID,this.state.ipfsHash)
         }; //onSubmit 
 
 
@@ -67,7 +94,7 @@ class Main extends Component {
                          <div className="card-body">
                              <p className="card-text"><b>ID:</b> {product.id.toString()}</p>
                              <p className="card-text"><b>Name:</b> {product.name}</p>
-                             <p className="card-text"><b>Price:</b> {window.web3.utils.fromWei(product.price.toString(),'Ether')}   ETH</p>
+                             <p className="card-text"><b>Price Per Day:</b> {window.web3.utils.fromWei(product.price.toString(),'Ether')}   ETH</p>
                              <p className="card-text"><b>Number of Rooms:</b> {product.bhk}</p>
                              <p className="card-text"><b>Location:</b> {product.location}</p>
                              <p className="card-text"><b>Owner:</b> {product.owner}</p>
@@ -86,7 +113,9 @@ class Main extends Component {
             <p> </p>
              <button 
              className="btn btn-sm btn-outline-primary"  
-             type="submit">
+             type="submit"
+             onClick={(event)=>{this.setState({productID:product.id})}}>
+
              Upload
              </button>
           </form>
@@ -114,16 +143,25 @@ class Main extends Component {
                      }
                              <div className="d-flex justify-content-between align-items-center">
                                  <div className="btn-group">
-                                    {!product.purchased 
-                                     ? <button 
+                                    {!product.purchased && !(this.props.account === product.owner)
+                                     ? <div> 
+                                    <p className="card-text"><b>Number of days:</b>  </p>  
+                                     <div className="input-group"> 
+                                     <input type="button" value="-" onClick={this.doDecrement} className="button-minus" data-field="quantity"></input>
+                                     <input type="number" step="1" max="" value={this.state.NumOfDays} onChange={this.handleChange} name="quantity" className="quantity-field"></input>
+                                     <input type="button" value="+" onClick={this.doIncrement} className="button-plus" data-field="quantity"></input>
+                                     </div>
+                                   
+                                     <button 
                                             name={product.id} 
                                             value={product.price} 
                                             type="button" 
                                             className="btn btn-sm btn-outline-primary" 
-                                            onClick={(event) => {this.props.rentHouse(event.target.name, event.target.value)     
+                                            onClick={(event) => {this.props.rentHouse(event.target.name, event.target.value,this.state.NumOfDays)     
                                                 }}>
                                             RENT
                                      </button>
+                                     </div>
                                      :null 
                                     }
                                  </div>

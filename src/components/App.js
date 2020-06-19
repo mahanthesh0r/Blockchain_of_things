@@ -85,6 +85,8 @@ class App extends Component {
     this.rentHouse = this.rentHouse.bind(this)
     this.returnHouse = this.returnHouse.bind(this)
     this.sendHash = this.sendHash.bind(this)
+    this.getHash = this.getHash.bind(this)
+    this.verifyQR = this.verifyQR.bind(this)
   }
 
   onGetReceipt = async () => {
@@ -124,9 +126,12 @@ class App extends Component {
     })
   }
 
-  rentHouse(id,price) {
+  rentHouse(id,price,NumofDays) {
     this.setState({loading:true})
-    this.state.marketplace.methods.rentHouse(id).send({from: this.state.account, value: price})
+    var totalPrice = price*NumofDays
+    console.log(totalPrice)
+    
+    this.state.marketplace.methods.rentHouse(id).send({from: this.state.account, value: totalPrice})
     .once('receipt', (receipt) => {
       this.setState({loading:false})
     })
@@ -140,12 +145,30 @@ class App extends Component {
     })
   }
 
-  sendHash(ipfsHash){
-    this.state.marketplace.methods.sendHash(ipfsHash).send({from: this.state.account}, (error, transactionHash) => {
+  sendHash(id,ipfsHash){
+    this.state.marketplace.methods.sendHash(id,ipfsHash).send({from: this.state.account}, (error, transactionHash) => {
                  console.log(transactionHash);
                  this.setState({transactionHash});
+                this.getHash(1)
                }); 
   }
+  getHash(id){
+    this.state.marketplace.methods.getHash(id).call({from: this.state.account}, function(error,res){
+     console.log("getHash: ", res)
+   })
+   this.verifyQR(1,this.state.account)
+      
+    
+  }
+
+  verifyQR(id,verifyRentee){
+    this.state.marketplace.methods.verifyQR(id,verifyRentee).call({from: this.state.account},function(error,res){
+      console.log("VerifyRentee: ", res)
+    })
+   
+    
+  }
+
   render() {
     return (
       <div>

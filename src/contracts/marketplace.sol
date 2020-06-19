@@ -3,9 +3,11 @@ pragma solidity ^0.5.0;
 contract Marketplace {
     string public name;
     uint public productCount = 0;
+    uint public ipfsCount = 0;
     string public ipfsHash;
-    uint public index = 0;
+   // uint public index = 0;
     mapping(uint => House) public houses;
+    mapping(uint => Ipfs) public ipfs;
 
     struct House {
         uint id;
@@ -16,8 +18,12 @@ contract Marketplace {
         address payable owner;
         address payable rentee;
         bool purchased;
-        string[] DocHash;
-        address[] allRentee;
+    }
+    struct Ipfs {
+        uint ipfs_id;
+        uint house_id;
+        string IPFS_Hash;
+        address payable rentee;
     }
 
     event HouseCreated(
@@ -60,10 +66,8 @@ contract Marketplace {
     function createHouse(string memory _name, uint _price, string memory _bhk, string memory _location) public {
         //Require a valid name
         require(bytes(_name).length > 0);
+         //Require a valid price
         require(_price > 0);
-
-        //Require a valid price 
-
         //Make sure param are correct
         //Increment product count
         productCount ++;
@@ -93,17 +97,14 @@ contract Marketplace {
         //Mark as purchased
         _house.purchased = true;
         //Add the rentee address to allRentee Array
-        _house.allRentee[index] = _house.rentee;
+       // _house.allRentee[index] = _house.rentee;
         //update the product
         houses[_id] = _house;
         //Pay the seller by sending them ether
         address(_seller).transfer(msg.value);
-        
         //Trigger Event
        //  emit HouseRented(productCount, _house.name, _house.price, _house.bhk, _house.location, msg.sender,_house.rentee, true);
        emit HouseRented(productCount, _house.name, _house.price, _house.bhk, _house.location, _house.owner, _house.rentee, true);
-
-
     }
 
     //allow house owner to mark house as returned.
@@ -123,31 +124,50 @@ contract Marketplace {
 
 
     function sendHash(uint _id,string memory x) public {
-        ipfsHash = x; 
+        ipfsHash = x;
         //Fetch the product
         House memory _house = houses[_id];
-        //Fetch Owner
-        address _seller = _house.owner;
-        //Fetch the rentee
-        address rentee = _house.rentee;
         //Make sure the product is valid with valid id
-        require(_house.id > 0 && _house.id <= productCount);
+        require(_house.id > 0 && _house.id <= productCount, "Product invalid");
         //Require that house has  been rented
-        require(_house.purchased);
+        require(_house.purchased, "House has not been rented");
         //Require that the buyer is not the seller
-        require(_seller != msg.sender);
-        if(_house.allRentee[index] == msg.sender){
-        //Store the IPFS Hash value 
-        _house.DocHash[index] = ipfsHash;
-        index++;
-        } 
-        //Update the product
-        houses[_id] = _house;
-
+        address payable _seller = _house.owner;
+        require(_seller != msg.sender, "Buyer cannot be the owner");
+        //Fetch the rentee
+        address payable rentee = _house.rentee;
+        //Increment ipfs count
+        ipfsCount ++;
+        //Fetch the IPFS struct
+        ipfs[ipfsCount] = Ipfs(ipfsCount,_id,x,rentee);
     }
 
-    function getHash() public view returns (string memory x) {
-    return ipfsHash;
+    function getHash(uint _id) public view returns (string memory x) {
+        //Fetch ipfs value
+        for (uint i = 1; i<=ipfsCount; i++){
+             Ipfs memory _ipfs = ipfs[i];
+             if(_ipfs.house_id == _id){
+                  return _ipfs.IPFS_Hash;
+             }
+        }
+    }
+
+    function verifyQR(uint _id, address verifyRentee) public view returns (bool ){
+        //fetch House details
+        House memory _house = houses[_id];
+        //Verify the rentee
+        if(_house.purchased){
+            if(verifyRentee == _house.rentee){
+                //Verified
+                return true;
+            } else{
+                //Not Verified
+                return false;
+            }
+        }else {
+            //Not Verified
+            return false;
+        }
     }
 
 
