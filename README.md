@@ -38,9 +38,17 @@
 
 5. #### Run IPFS Daemon
     ``` $ ipfs daemon ```
-
 6. #### Run your react client **make sure you're in your project directory** 
     ``` $ npm run start ```
+    
+## Demo
+Make sure you have Meta-Mask extension installed.
+The smart contract is deployed on Kovan testnet, therefore, you need to have funds in your wallet for the kovan testnet. 
+You can request for some ethers [Here](https://gitter.im/kovan-testnet/faucet) OR [Here](https://faucet.kovan.network/)
+All you have to do is paste your wallet address in there.
+#### [Rent-Block](https://rent-block.herokuapp.com/)
+
+
     
  ***   
 #### Please Give This Project A Star :star:
