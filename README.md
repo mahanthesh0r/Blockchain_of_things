@@ -49,6 +49,7 @@ All you have to do is paste your wallet address in there.
 #### [Rent-Block](https://rent-block.herokuapp.com/)
 
 
-    
+***for the hardware please check https://github.com/mahanthesh0r/BlockchainRaspi***
+   
  ***   
 #### Please Give This Project A Star :star:
