@@ -2,18 +2,23 @@ import React, { Component } from 'react';
 import ipfs from './ipfs';
 import {Button,ButtonToolbar} from 'react-bootstrap';
 import ReceiptModal from './ReceiptModal';
+import * as ml5 from 'ml5'
 
-
+let classifier;
 class Main extends Component {
+
 
     constructor(props){
         super(props)
+        this.imgRef = React.createRef();
         this.state = {
             addModalShow:false,
             //ipfs
              ipfsHash: null,
              productID: null,
-             NumOfDays: 1
+             NumOfDays: 1,
+             pic: '',
+             documentId: {type: '',loaded: false}
              
      
      }
@@ -21,7 +26,39 @@ class Main extends Component {
     this.onSub= this.onSub.bind(this);
     this.doDecrement = this.doDecrement.bind(this);
     this.doIncrement = this.doIncrement.bind(this);
+    this.classifyDoc = this.classifyDoc.bind(this);
+    this.gotResults = this.gotResults.bind(this);
     }
+
+    componentDidMount(){
+        const url = 'https://teachablemachine.withgoogle.com/models/p3y2_Uyuj/'
+        classifier = ml5.imageClassifier(url + 'model.json',() =>{
+            console.log("ML5 loaded")
+        });
+    }
+
+   async classifyDoc(img){
+        if(classifier){
+            classifier.classify(img, this.gotResults);
+        }
+       
+    }
+
+    gotResults(err, results) {
+        if(err){
+            console.log(err)
+        }
+        this.setState({documentId:{
+            ...this.state.documentId,
+            type: results[0].label,
+            loaded: true
+        }})
+        
+    }
+
+     
+
+      
 
     doDecrement(event){
         event.preventDefault()
@@ -47,15 +84,18 @@ class Main extends Component {
 
     
 
-        captureFile(event){
+         captureFile(event){
             event.stopPropagation()
             event.preventDefault()
             const file = event.target.files[0]
+            const ImgData = URL.createObjectURL(event.target.files[0])
+            this.setState({pic:ImgData})
             let reader = new window.FileReader()
             reader.readAsArrayBuffer(file)
             reader.onloadend = () => {
               this.setState({buffer:Buffer(reader.result)})
-              console.log('buffer',this.state.buffer)
+              const imgPreview = document.getElementById('imgP')
+              this.classifyDoc(imgPreview)
             }
           };
 
@@ -103,12 +143,25 @@ class Main extends Component {
                          ? <div>
                              
                   <hr/>
-                  <h3> Upload your Aadhaar card </h3>
+                  <h3> Upload your ID </h3>
           <form onSubmit={this.onSub}>
             <input 
               type = "file"
               onChange = {this.captureFile}
+              ref={this.imgRef}
             />
+            {this.state.pic ? (
+                <img
+                src={this.state.pic}
+                style={{width: 200, height: 100}}
+                ref={this.imgRef}
+                id="imgP"
+                />
+             ): null
+        }
+        {this.state.documentId.loaded 
+        ? <p className="mt-2">Document Uploaded: <b>{this.state.documentId.type}</b></p>
+        :null }
             
             <p> </p>
              <button 
